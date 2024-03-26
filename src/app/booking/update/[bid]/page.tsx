@@ -12,10 +12,12 @@ import { useSession } from "next-auth/react";
 import Snackbar from "@mui/material/Snackbar";
 import Link from "next/link";
 
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export default function Booking() {
+export default function Booking( {params} : { params : {bid:string} } ) {
+
   const [selectedDentist, setSelectedDentist] = useState("");
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [selectedTime, setSelectedTime] = useState<Dayjs | null>(null);
@@ -33,6 +35,7 @@ export default function Booking() {
   };
 
   const handleBooking = async () => {
+
     if (!selectedDentist || !selectedDate || !selectedTime) {
       console.log("Please select a dentist, date, and time.");
       return;
@@ -57,8 +60,8 @@ export default function Booking() {
         const profileData = await profileResponse.json();
         const userId = profileData._id;
 
-        const bookingResponse = await fetch("/api/booking", {
-          method: "POST",
+        const bookingResponse = await fetch("/api/booking/update", {
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
@@ -66,6 +69,7 @@ export default function Booking() {
             user: userId,
             dentistId: Dentist,
             bookDate: Time,
+            bookId: params.bid,
           }),
         });
 
@@ -79,7 +83,7 @@ export default function Booking() {
         setOpenFail(true);
       }
     } catch (error) {
-      console.error("Error booking appointment:", error);
+      console.error("Error Update appointment:", error);
       setOpenFail(true);
     }
   };
@@ -100,7 +104,7 @@ export default function Booking() {
             value={selectedDentist}
             onChange={(e) => setSelectedDentist(e.target.value)}
           >
-            <MenuItem value="">Select Dentist</MenuItem>
+            <MenuItem value="" disabled>Select Dentist</MenuItem>
             <MenuItem value="65e2eabf92e255d9defc4d3a">Kankawin</MenuItem>
             <MenuItem value="65e2eb8bad555b2b58ba6819">Veeraphat</MenuItem>
             <MenuItem value="65e30fe9dd63a8b0081e275e">Schwynn</MenuItem>
